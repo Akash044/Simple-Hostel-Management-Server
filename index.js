@@ -23,6 +23,8 @@ app.get('/', (req, res) => {
 client.connect(err => {
    const boarderCollection = client.db(process.env.DB_NAME).collection(process.env.DB_COL1);
    const adminCollection = client.db(process.env.DB_NAME).collection(process.env.DB_COL2);
+   const rentCollection = client.db(process.env.DB_NAME).collection(process.env.DB_COL3);
+   const mealCollection = client.db(process.env.DB_NAME).collection(process.env.DB_COL4);
 
 
    //  ALL BOOKS SECTION START HERE
@@ -120,6 +122,29 @@ client.connect(err => {
       .then(result => {
          res.send(result.insertedCount > 0)
       })
+   })
+
+
+   app.post('/addMeal', (req, res) => {
+      console.log(req.body);
+      mealCollection.insertOne(req.body)
+      .then(result => {
+         res.send(result.insertedCount > 0)
+      })
+   })
+   app.post('/addRent', (req, res) => {
+      console.log(req.body);
+      rentCollection.insertOne(req.body)
+      .then(result => {
+         res.send(result.insertedCount > 0)
+      })
+   })
+   app.get('/paidRents/:email', (req, res) => {
+      rentCollection.find({email: req.params.email })
+         .toArray((err, documents) => {
+            console.log(documents)
+            res.send(documents);
+         })
    })
 });
 app.listen(process.env.PORT || 8080);
