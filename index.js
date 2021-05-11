@@ -153,6 +153,13 @@ client.connect(err => {
             res.send(documents);
          })
    })
+   app.get('/paidRents', (req, res) => {
+      rentCollection.find({})
+         .toArray((err, documents) => {
+            console.log(documents)
+            res.send(documents);
+         })
+   })
 
 
 // room section
