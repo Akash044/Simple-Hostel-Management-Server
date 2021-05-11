@@ -78,13 +78,15 @@ client.connect(err => {
    //       })
    // })
 
-   // app.patch('/update/:id', (req, res) => {
-   //    collection.updateOne({ _id: ObjectId(req.params.id) },
-   //       {
-   //          $set: { name: req.body.name, age: req.body.age, studyAt: req.body.studyAt }
-   //       })
-   //       .then(res => console.log(res))
-   // })
+   app.patch('/paidRents/:id', (req, res) => {
+      rentCollection.updateOne({ trxId: req.params.id },
+         {
+            $set: { trxId: req.body.status}
+         })
+         .then((result) => {
+            res.send(result.modifiedCount > 0)
+          });
+   })
 
    // //  delete a book
    // app.delete('/deleteBook/:id', (req, res) => {
