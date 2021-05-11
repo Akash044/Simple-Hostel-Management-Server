@@ -81,7 +81,7 @@ client.connect(err => {
    app.patch('/paidRents/:id', (req, res) => {
       rentCollection.updateOne({ trxId: req.params.id },
          {
-            $set: { trxId: req.body.status}
+            $set: { status: req.body.status}
          })
          .then((result) => {
             res.send(result.modifiedCount > 0)
