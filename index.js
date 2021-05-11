@@ -44,7 +44,13 @@ client.connect(err => {
             res.send(documents[0]);
          })
    })
-   app.post('/AddBoarder', (req, res) => {
+   app.get('/isUser', (req, res) => {
+      boarderCollection.find({email: req.query.email })
+         .toArray((err, documents) => {
+            res.send(documents.length > 0);
+         })
+   })
+   app.post('/addBoarder', (req, res) => {
       const borderInfo = req.body;
       boarderCollection.insertOne(borderInfo)
       .then(result => {
@@ -110,7 +116,7 @@ client.connect(err => {
    // })
    // // ORDER SECTION END HERE
 
-   app.get('/admin', (req, res) => {
+   app.get('/isAdmin', (req, res) => {
       adminCollection.find({email: req.query.email })
          .toArray((err, documents) => {
             console.log(documents.length)
