@@ -25,6 +25,7 @@ client.connect(err => {
    const adminCollection = client.db(process.env.DB_NAME).collection(process.env.DB_COL2);
    const rentCollection = client.db(process.env.DB_NAME).collection(process.env.DB_COL3);
    const mealCollection = client.db(process.env.DB_NAME).collection(process.env.DB_COL4);
+   const roomCollection = client.db(process.env.DB_NAME).collection(process.env.DB_COL5);
 
 
    //  ALL BOOKS SECTION START HERE
@@ -141,6 +142,23 @@ client.connect(err => {
    })
    app.get('/paidRents/:email', (req, res) => {
       rentCollection.find({email: req.params.email })
+         .toArray((err, documents) => {
+            console.log(documents)
+            res.send(documents);
+         })
+   })
+
+
+// room section
+   app.post('/addRoom', (req, res) => {
+      console.log(req.body);
+      roomCollection.insertOne(req.body)
+      .then(result => {
+         res.send(result.insertedCount > 0)
+      })
+   })
+   app.get('/allRooms', (req, res) => {
+      roomCollection.find({})
          .toArray((err, documents) => {
             console.log(documents)
             res.send(documents);
