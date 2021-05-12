@@ -160,6 +160,15 @@ client.connect(err => {
          res.send(result.insertedCount > 0)
       })
    })
+
+   app.get('/boarderMeal/:email', (req, res) => {
+      mealCollection.find({email: req.params.email })
+         .toArray((err, documents) => {
+            console.log(documents)
+            res.send(documents);
+         })
+   })
+
    app.post('/addRent', (req, res) => {
       console.log(req.body);
       rentCollection.insertOne(req.body)
