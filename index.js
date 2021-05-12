@@ -44,6 +44,25 @@ client.connect(err => {
             res.send(documents[0]);
          })
    })
+  
+   app.patch('/boarder/:email', (req, res) => {
+      rentCollection.updateOne({ email: req.params.email },
+         {
+            $set: { 
+               name: req.body.name,
+               dept: req.body.dept,
+               sec: req.body.sec,
+               roll : req.body.roll,
+               address : req.body.address,
+               mobile : req.body.mobile,
+               bp: req.body.bp,
+            }
+         })
+         .then((result) => {
+            res.send(result.modifiedCount > 0)
+          });
+   })
+
    app.get('/isUser', (req, res) => {
       boarderCollection.find({email: req.query.email })
          .toArray((err, documents) => {
