@@ -46,7 +46,7 @@ client.connect(err => {
    })
   
    app.patch('/boarder/:email', (req, res) => {
-      rentCollection.updateOne({ email: req.params.email },
+      boarderCollection.updateOne({ email: req.params.email },
          {
             $set: { 
                name: req.body.name,
