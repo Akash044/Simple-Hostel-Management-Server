@@ -28,6 +28,14 @@ client.connect(err => {
    const roomCollection = client.db(process.env.DB_NAME).collection(process.env.DB_COL5);
    const mealRateCollection = client.db(process.env.DB_NAME).collection(process.env.DB_COL6);
 
+   app.post('/addMealRate', (req, res) => {
+      const mealRateInfo = req.body;
+      mealRateCollection.insertOne(mealRateInfo)
+      .then(result => {
+         res.send(result.insertedCount > 0)
+      })
+   })
+
 
    //  ALL BOOKS SECTION START HERE
    // read all boarders
@@ -211,13 +219,7 @@ client.connect(err => {
 });
 
 
-app.post('/addMealRate', (req, res) => {
-   const mealRateInfo = req.body;
-   mealRateCollection.insertOne(mealRateInfo)
-   .then(result => {
-      res.send(result.insertedCount > 0)
-   })
-})
+
 
 
 
