@@ -26,6 +26,7 @@ client.connect(err => {
    const rentCollection = client.db(process.env.DB_NAME).collection(process.env.DB_COL3);
    const mealCollection = client.db(process.env.DB_NAME).collection(process.env.DB_COL4);
    const roomCollection = client.db(process.env.DB_NAME).collection(process.env.DB_COL5);
+   const mealRateCollection = client.db(process.env.DB_NAME).collection(process.env.DB_COL6);
 
 
    //  ALL BOOKS SECTION START HERE
@@ -208,4 +209,16 @@ client.connect(err => {
          })
    })
 });
+
+
+app.post('/addMealRate', (req, res) => {
+   const mealRateInfo = req.body;
+   mealRateCollection.insertOne(mealRateInfo)
+   .then(result => {
+      res.send(result.insertedCount > 0)
+   })
+})
+
+
+
 app.listen(process.env.PORT || 8080);
