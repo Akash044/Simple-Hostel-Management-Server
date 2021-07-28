@@ -4,15 +4,19 @@ const cors = require('cors');
 const fileUpload = require('express-fileupload');
 const ObjectId = require('mongodb').ObjectID;
 const MongoClient = require('mongodb').MongoClient;
+const bcrypt = require('bcrypt');
+// const fs = require('fs-extra');
+const saltRounds = 10;
+
 require('dotenv').config();
 const app = express();
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.ieei5.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
-app.use(express.json());
+app.use(express.json({limit: '50mb'}));
 app.use(cors());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({limit: '50mb', extended: false }));
 app.use(express.static('boarders'));
 app.use(fileUpload());
 
@@ -35,6 +39,12 @@ client.connect(err => {
          res.send(result.insertedCount > 0)
       })
    })
+   app.get("/allMealRate",(req, res) => {
+      mealRateCollection.find({})
+         .toArray((err, documents) => {
+            res.send(documents);
+         })
+   })
 
 
    //  ALL BOOKS SECTION START HERE
@@ -45,7 +55,7 @@ client.connect(err => {
             res.send(documents);
          })
    })
-   // read bosrder by email
+   // read boarder by email
    app.get('/boarder/:email', (req, res) => {
       const userEmail = req.params.email;
       boarderCollection.find({ email: userEmail})
@@ -80,31 +90,46 @@ client.connect(err => {
    })
    app.post('/addBoarder', (req, res) => {
       const borderInfo = req.body;
-      boarderCollection.insertOne(borderInfo)
-      .then(result => {
-         res.send(result.insertedCount > 0)
-      })
+      const password = req.body.password;
+
+      bcrypt.genSalt(saltRounds, (err, salt) => {
+         bcrypt.hash(password, salt, (err, hash) => {
+
+            // console.log(hash);
+             // Now we can store the password hash in db.
+             boarderCollection.insertOne({...borderInfo,password:hash})
+             .then(result => {
+                res.send(result.insertedCount > 0)
+             })
+         });
+     });
+     
    })
 
    // insert new boarder
-   // app.post('/addABoarder', (req, res) => {
+   app.post('/uploadRoomImg', (req, res) => {
+      console.log(); 
 
-   //    const boarderImg = req.files.file;
-   //    // console.log(boarderImg);
-   //    const newImg = boarderImg.data;
-   //    const encodeImg = newImg.toString('base64');
+      const boarderImg = req.body.base64;
+      const imgSize = req.body.fileSize;
+      const type = req.body.type;
+      // console.log(boarderImg);
+      // const newImg = boarderImg.data;
+      // const newImg = boarderImg; 
+      // const encodeImg = newImg.toString('base64');
 
-   //    const image = {
-   //       contentType: boarderImg.mimetype,
-   //       size: boarderImg.size,
-   //       img: Buffer.from(encodeImg, 'base64')
-   //    };
-   //    boarderCollection.insertOne(image)
-   //       .then(result => {
-   //          console.log("data added successfully");
-   //          res.send(result.insertedCount > 0);
-   //       })
-   // })
+      const image = {  
+         contentType: type,
+         size: imgSize,
+         img: Buffer(boarderImg, 'base64')
+         // img:newImg
+      };
+      boarderCollection.insertOne(image)
+         .then(result => {
+            console.log("data added successfully");
+            res.send(result.insertedCount > 0);
+         }) 
+   })
 
    app.patch('/paidRents/:id', (req, res) => {
       rentCollection.updateOne({ trxId: req.params.id },
@@ -195,7 +220,7 @@ client.connect(err => {
    app.get('/paidRents', (req, res) => {
       rentCollection.find({})
          .toArray((err, documents) => {
-            console.log(documents)
+            // console.log(documents)
             res.send(documents);
          })
    })
@@ -203,8 +228,30 @@ client.connect(err => {
 
 // room section
    app.post('/addRoom', (req, res) => {
-      console.log(req.body);
-      roomCollection.insertOne(req.body)
+      console.log(req.body.fileSize);
+       
+      const boarderImg = req.body.base64;
+      const imgSize = req.body.fileSize;
+      const type = req.body.type;
+      const roomNo = req.body.roomNo;
+      const seat = req.body.seat;
+      const description = req.body.description;
+      const vacantStatus = req.body.vacantStatus;
+       
+      // console.log(roomNo);s
+      // const newImg = boarderImg.data;
+      // const newImg = boarderImg; 
+      // const encodeImg = newImg.toString('base64');
+
+      const image = {  
+         contentType: type,
+         size: imgSize,
+         img: Buffer(boarderImg, 'base64')
+         // img:newImg
+      };
+      const roomInfo = {roomNo: roomNo, seat: seat, description: description, vacantStatus: vacantStatus,...image}
+
+      roomCollection.insertOne(roomInfo)
       .then(result => {
          res.send(result.insertedCount > 0)
       })
@@ -216,11 +263,70 @@ client.connect(err => {
             res.send(documents);
          })
    })
+    app.delete('/deleteRoom/:id', (req, res) => {
+      roomCollection.deleteOne({ _id: ObjectId(req.params.id) })
+         .then(result => 
+            {
+               res.send(result.deletedCount > 0);
+            })
+   })
+   app.patch('/updateRoom/:id', (req, res) => {
+      roomCollection.updateOne({ trxId: req.params.id },
+         {
+            $set: { vacantStatus: req.body.status,
+                    seat: req.body.seat,
+                    description: req.body.description
+            }
+         })
+         .then((result) => {
+            res.send(result.modifiedCount > 0) 
+          });
+   })
+//room section end
+
+
+
+   app.post('/login', (req, res) => {
+       console.log("here ",req.body);
+       const myPassword = req.body.password;
+
+      adminCollection.find({email: req.body.email})
+      .toArray((err, documents) => {
+         const info ={ ...documents[0]};
+         if(documents.length){
+            bcrypt.compare(myPassword, info.password, function(err, response) {
+               if (response){
+                  res.json({...info,isAdmin:true, isUser:false,message:""});
+               }
+               else{
+                  res.json({message:"Email or password is incorrect"});
+               }
+             });
+         }else{
+            boarderCollection.find({email: req.body.email})
+            .toArray((err, documents) => {
+               const info ={ ...documents[0]};
+               if(documents.length){
+                  bcrypt.compare(myPassword, info.password, function(err, response) {
+                     if (response){
+                        res.json({...info,isAdmin:false, isUser:true,message:""});
+                     }
+                     else{
+                        res.json({message:"Email or password is incorrect"});
+                     }
+                   });
+               }else{
+                  res.json({message:"Email or password is incorrect"});
+               }
+            })
+         }
+      })
+      
+      
+   })
+
+
+
 });
-
-
-
-
-
 
 app.listen(process.env.PORT || 8085);
