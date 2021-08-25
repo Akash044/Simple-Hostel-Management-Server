@@ -31,6 +31,38 @@ client.connect(err => {
    const mealCollection = client.db(process.env.DB_NAME).collection(process.env.DB_COL4);
    const roomCollection = client.db(process.env.DB_NAME).collection(process.env.DB_COL5);
    const mealRateCollection = client.db(process.env.DB_NAME).collection(process.env.DB_COL6);
+   const guestCollection = client.db(process.env.DB_NAME).collection(process.env.DB_COL7);
+
+
+   app.post('/addGuest', (req, res) => {
+      console.log(req.body)
+      const guestImg = req.body.base64;
+      const imgSize = req.body.fileSize;
+      const type = req.body.type;
+      const name = req.body.guestName;
+      const mobile = req.body.mobile;
+      const address = req.body.address;
+      const date = req.body.today;
+      const relativeEmail = req.body.relativeEmail;
+       
+      // console.log(roomNo);s
+      // const newImg = boarderImg.data;
+      // const newImg = boarderImg; 
+      // const encodeImg = newImg.toString('base64');
+
+      const image = {  
+         contentType: type,  
+         size: imgSize,
+         img: Buffer.from(guestImg, 'base64')
+         // img:newImg 
+      };
+      const guestInfo = {name: name, mobile: mobile, address: address, date: date, relativeEmail: relativeEmail,...image}
+
+      guestCollection.insertOne(guestInfo)
+      .then(result => {
+         res.send(result.insertedCount > 0)
+      })
+   })
 
    app.post('/addMealRate', (req, res) => {
       const mealRateInfo = req.body;
@@ -121,7 +153,7 @@ client.connect(err => {
       const image = {  
          contentType: type,
          size: imgSize,
-         img: Buffer(boarderImg, 'base64')
+         img: Buffer.from(boarderImg, 'base64')
          // img:newImg
       };
       boarderCollection.insertOne(image)
@@ -174,12 +206,12 @@ client.connect(err => {
    app.get('/isAdmin', (req, res) => {
       adminCollection.find({email: req.query.email })
          .toArray((err, documents) => {
-            console.log(documents.length)
+            // console.log(documents.length)
             res.send(documents.length > 0);
          })
    })
    app.post('/addAdmin', (req, res) => {
-      console.log(req.body);
+      // console.log(req.body);
       adminCollection.insertOne(req.body)
       .then(result => {
          res.send(result.insertedCount > 0)
@@ -198,13 +230,13 @@ client.connect(err => {
    app.get('/boarderMeal/:email', (req, res) => {
       mealCollection.find({email: req.params.email })
          .toArray((err, documents) => {
-            console.log(documents)
+            // console.log(documents)
             res.send(documents);
          })
    })
 
    app.post('/addRent', (req, res) => {
-      console.log(req.body);
+      // console.log(req.body);
       rentCollection.insertOne(req.body)
       .then(result => {
          res.send(result.insertedCount > 0)
@@ -213,7 +245,7 @@ client.connect(err => {
    app.get('/paidRents/:email', (req, res) => {
       rentCollection.find({email: req.params.email })
          .toArray((err, documents) => {
-            console.log(documents)
+            // console.log(documents)
             res.send(documents);
          })
    })
@@ -228,7 +260,7 @@ client.connect(err => {
 
 // room section
    app.post('/addRoom', (req, res) => {
-      console.log(req.body.fileSize);
+      // console.log(req.body.fileSize);
        
       const boarderImg = req.body.base64;
       const imgSize = req.body.fileSize;
@@ -246,7 +278,7 @@ client.connect(err => {
       const image = {  
          contentType: type,
          size: imgSize,
-         img: Buffer(boarderImg, 'base64')
+         img: Buffer.from(boarderImg, 'base64')
          // img:newImg
       };
       const roomInfo = {roomNo: roomNo, seat: seat, description: description, vacantStatus: vacantStatus,...image}
@@ -259,7 +291,7 @@ client.connect(err => {
    app.get('/allRooms', (req, res) => {
       roomCollection.find({})
          .toArray((err, documents) => {
-            console.log(documents)
+            // console.log(documents)
             res.send(documents);
          })
    })
