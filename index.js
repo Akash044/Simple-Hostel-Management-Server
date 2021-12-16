@@ -35,7 +35,7 @@ client.connect(err => {
 
 
    app.post('/addGuest', (req, res) => {
-      console.log(req.body)
+      // console.log(req.body)
       const guestImg = req.body.base64; 
       const imgSize = req.body.fileSize;
       const type = req.body.type;
@@ -82,7 +82,7 @@ client.connect(err => {
    //  ALL BOOKS SECTION START HERE
    // read all boarders
    app.get('/boarders', (req, res) => {
-      console.log('hi')
+      // console.log('hi')
       boarderCollection.find({})
          .toArray((err, documents) => {
             res.send(documents);
@@ -141,7 +141,7 @@ client.connect(err => {
 
    // insert new boarder
    app.post('/uploadRoomImg', (req, res) => {
-      console.log(); 
+      // console.log(); 
 
       const boarderImg = req.body.base64;
       const imgSize = req.body.fileSize;
@@ -159,7 +159,7 @@ client.connect(err => {
       };
       boarderCollection.insertOne(image)
          .then(result => {
-            console.log("data added successfully");
+            // console.log("data added successfully");
             res.send(result.insertedCount > 0);
          }) 
    })
@@ -221,7 +221,7 @@ client.connect(err => {
 
 
    app.post('/addMeal', (req, res) => {
-      console.log(req.body);
+      // console.log(req.body);
       mealCollection.insertOne(req.body)
       .then(result => {
          res.send(result.insertedCount > 0)
@@ -290,7 +290,7 @@ client.connect(err => {
       })
    })
    app.get('/allRooms', (req, res) => {
-      console.log("asche")
+      // console.log("asche")
       roomCollection.find({})
          .toArray((err, documents) => {
             // console.log(documents)
@@ -318,7 +318,7 @@ client.connect(err => {
    })
 
    app.patch('/bookedRoom', (req, res) => {
-      console.log("okey  ", req.body)
+      // console.log("okey  ", req.body)
       roomCollection.updateOne({ _id: ObjectId(req.body.id) },
          {
             $set: { vacantStatus: req.body.status}
@@ -332,7 +332,7 @@ client.connect(err => {
 
 
    app.post('/login', (req, res) => {
-       console.log("here ",req.body);
+      //  console.log("here ",req.body);
        const myPassword = req.body.password;
 
       adminCollection.find({email: req.body.email})
