@@ -36,7 +36,7 @@ client.connect(err => {
 
    app.post('/addGuest', (req, res) => {
       console.log(req.body)
-      const guestImg = req.body.base64;
+      const guestImg = req.body.base64; 
       const imgSize = req.body.fileSize;
       const type = req.body.type;
       const name = req.body.guestName;
@@ -82,10 +82,11 @@ client.connect(err => {
    //  ALL BOOKS SECTION START HERE
    // read all boarders
    app.get('/boarders', (req, res) => {
+      console.log('hi')
       boarderCollection.find({})
          .toArray((err, documents) => {
             res.send(documents);
-         })
+         })  
    })
    // read boarder by email
    app.get('/boarder/:email', (req, res) => {
