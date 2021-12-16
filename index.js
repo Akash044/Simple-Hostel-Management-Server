@@ -290,6 +290,7 @@ client.connect(err => {
       })
    })
    app.get('/allRooms', (req, res) => {
+      console.log("asche")
       roomCollection.find({})
          .toArray((err, documents) => {
             // console.log(documents)
@@ -310,6 +311,17 @@ client.connect(err => {
                     seat: req.body.seat,
                     description: req.body.description
             }
+         })
+         .then((result) => {
+            res.send(result.modifiedCount > 0) 
+          });
+   })
+
+   app.patch('/bookedRoom', (req, res) => {
+      console.log("okey  ", req.body)
+      roomCollection.updateOne({ _id: ObjectId(req.body.id) },
+         {
+            $set: { vacantStatus: req.body.status}
          })
          .then((result) => {
             res.send(result.modifiedCount > 0) 
@@ -362,4 +374,4 @@ client.connect(err => {
 
 });
 
-app.listen(process.env.PORT || 8085);
+app.listen(process.env.PORT || 8085); 
