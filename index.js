@@ -30,6 +30,7 @@ app.get('/', (req, res) => {
 })
 
 client.connect(err => {
+
    const boarderCollection = client.db(process.env.DB_NAME).collection(process.env.DB_COL1);
    const adminCollection = client.db(process.env.DB_NAME).collection(process.env.DB_COL2);
    const rentCollection = client.db(process.env.DB_NAME).collection(process.env.DB_COL3);
@@ -64,7 +65,7 @@ client.connect(err => {
       const guestInfo = { name: name, mobile: mobile, address: address, date: date, relativeEmail: relativeEmail, ...image }
 
       guestCollection.insertOne(guestInfo)
-         .then(result => {
+         .then(result => { 
             res.send(result.insertedCount > 0)
          })
    })
@@ -174,17 +175,17 @@ client.connect(err => {
 
 
 
-
+         console.log(req.body)
       
 
 
 
       let message = '';
       let mailResponse = false;
-      if (req.body.status === "pending") {
+      if (req.body.status == "pending") {
          message = `Your payment (TrxID: ${req.body.trxID}) is being processed. Please wait for it to be processed.
                  Thank you`
-      } else if (req.body.status === "paid") {
+      } else if (req.body.status == "paid") {
          message = `Your payment (TrxID: ${req.body.trxID}) is completed.
                  Thank you`
       } else {
@@ -203,7 +204,7 @@ client.connect(err => {
                service: 'gmail',
                auth: {
                   user: "ruetakash@gmail.com",
-                  password: "1703044A"
+                  pass: "1703044A"
                }
             });
             let mailOptions = {
@@ -216,22 +217,25 @@ client.connect(err => {
                if (err) {
                   console.log(err);
                   mailResponse = false
+                  result.modifiedCount > 0 && res.send({ updateInfo: true, mailResponse })
 
                }
                else {
+                  console.log(resp);
                   mailResponse = true;
+                  result.modifiedCount > 0 && res.send({ updateInfo: true, mailResponse })
                }
 
-               if (result.modifiedCount > 0) {
-                  res.send({ updateInfo: true, mailResponse })
-               } else {
-                  res.send({ updateInfo: true, mailResponse })
-               }
+               // if (result.modifiedCount > 0) {
+               //    res.send({ updateInfo: true, mailResponse })
+               // } else {
+               //    res.send({ updateInfo: true, mailResponse })
+               // }
 
                // res.send(result.modifiedCount > 0)
             });
 
-   })
+   }) 
 })
 
       // //  delete a book
@@ -302,6 +306,40 @@ client.connect(err => {
             .then(result => {
                // res.send(result.insertedCount > 0)
 
+
+               if (result.insertedCount > 0) {
+
+                  let mailResponse = false;
+
+                  let transporter = nodemailer.createTransport({
+                     service: 'gmail',
+                     auth: {
+                        user: process.env.GMAIL,
+                        password: process.env.PASS
+                     }
+                  });
+                  let mailOptions = {
+                     from: process.env.GMAIL,
+                     to: req.body.email,
+                     subject: 'Rent Status',
+                     text: `Your payment (TrxID: ${req.body.trxId}) is being processed. Please wait for it to be processed.
+               Thank you`
+                  };
+                  transporter.sendMail(mailOptions, (err, resp) => {
+                     if (err) {
+                        console.log(err);
+                        mailResponse = false;
+                     }
+                     else {
+                        mailResponse = true;
+                     }
+                  });
+                  res.send({ updateInfo: true, mailResponse })
+
+               } else {
+                  res.send({ updateInfo: true, mailResponse })
+               }
+
               
             })
       })
@@ -365,18 +403,28 @@ client.connect(err => {
                res.send(result.deletedCount > 0);
             })
       })
-      app.patch('/updateRoom/:id', (req, res) => {
-         roomCollection.updateOne({ trxId: req.params.id },
+      app.patch('/updateRoomInfo/:id', (req, res) => {
+         console.log(req.body)
+         roomCollection.updateOne({ _id: ObjectId(req.params.id) },
             {
                $set: {
-                  vacantStatus: req.body.status,
+                  roomNo: req.body.roomNo,
                   seat: req.body.seat,
-                  description: req.body.description
-               }
-            })
+                  description: req.body.description 
+               } 
+            }) 
             .then((result) => {
                res.send(result.modifiedCount > 0)
             });
+      })
+
+      app.get('/allMeals', (req, res) => {
+         console.log("asche")
+         mealCollection.find({})
+            .toArray((err, documents) => {
+               // console.log(documents)
+               res.send(documents); 
+            })
       })
 
       app.patch('/bookedRoom', (req, res) => {
