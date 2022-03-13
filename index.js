@@ -203,12 +203,12 @@ client.connect(err => {
             let transporter = nodemailer.createTransport({
                service: 'gmail',
                auth: {
-                  user: "ruetakash@gmail.com",
-                  pass: "1703044A"
+                  user: process.env.GMAIL,
+                  pass: process.env.PASS
                }
             });
             let mailOptions = {
-               from: "ruetakash@gmail.com",
+               from: process.env.GMAIL,
                to: req.body.email,
                subject: 'Rent Status',
                text: message
@@ -315,7 +315,7 @@ client.connect(err => {
                      service: 'gmail',
                      auth: {
                         user: process.env.GMAIL,
-                        password: process.env.PASS
+                        pass: process.env.PASS
                      }
                   });
                   let mailOptions = {
@@ -423,7 +423,7 @@ client.connect(err => {
          mealCollection.find({})
             .toArray((err, documents) => {
                // console.log(documents)
-               res.send(documents); 
+               res.send(documents);  
             })
       })
 
