@@ -327,7 +327,7 @@ client.connect(err => {
                   };
                   transporter.sendMail(mailOptions, (err, resp) => {
                      if (err) {
-                        console.log(err);
+                        console.log(err); 
                         mailResponse = false;
                      }
                      else {
